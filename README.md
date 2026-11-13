@@ -24,7 +24,7 @@ IP adresleri örnek olarak seçildi. Kendi bilgisayarındaki diğer ağlarla ça
 ## Bu çalışmada neler var?
 
 - Windows Server üzerine AD DS rolünü kurmak ve yeni bir forest oluşturmak
-- DNS'in etki alanıyla birlikte nasıl çalıştığını görmek
+- DNS'in etki alanıyla nasıl çalıştığını görmek
 - Departmanlara göre OU yapısı hazırlamak
 - Örnek kullanıcılar ve güvenlik grupları oluşturmak
 - Bir Group Policy hazırlayıp istemci OU'suna bağlamak
@@ -83,8 +83,3 @@ Ekran görüntüsü eklemeden önce parola, lisans anahtarı, kişisel kullanıc
 Bu çalışma bir ev laboratuvarı. Gerçek şirket ağına doğrudan uygulanacak hazır bir güvenlik standardı değil. Denemeleri yalnızca sanal makinelerde ve gerçek kullanıcı verisi kullanmadan yapıyorum.
 
 Bir sorun çıkarsa ilk bakacağım yerler ağ bağlantısı, DC01'in sabit IP adresi, istemcinin DNS ayarı ve saat eşitlemesi olacak. Gerekli olduğunda `ipconfig /all`, `nslookup corp.example.test` ve `dcdiag` komutlarıyla kontrol edeceğim.
-
-## Yararlanılan kaynak
-
-- [Microsoft Learn – Active Directory Etki Alanı Hizmetleri'ni yükleme](https://learn.microsoft.com/tr-tr/windows-server/identity/ad-ds/deploy/install-active-directory-domain-services--level-100-)
-- [Microsoft Learn – Install-ADDSForest komutu](https://learn.microsoft.com/tr-tr/powershell/module/addsdeployment/install-addsforest?view=windowsserver2025-ps)
