@@ -1,11 +1,12 @@
 #requires -RunAsAdministrator
 <#
 .SYNOPSIS
-Installs AD DS and creates a new forest on a fresh lab server.
+Yeni bir test etki alanı (forest) oluşturur.
 
 .NOTES
-Run on DC01 only. Review the domain name and network configuration first.
-The server restarts after successful promotion.
+Bu dosyayı yalnızca yeni kurduğun DC01 sunucusunda çalıştır.
+Sunucu adı ve IP ayarlarını önceden yap. İşlem tamamlandığında
+sunucu yeniden başlatılır.
 #>
 [CmdletBinding()]
 param(
@@ -15,13 +16,13 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "Installing Active Directory Domain Services..." -ForegroundColor Cyan
+Write-Host "Active Directory Domain Services rolü kuruluyor..." -ForegroundColor Cyan
 Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
 
-Write-Host "Promoting this server to the first domain controller for $DomainName..." -ForegroundColor Cyan
-Write-Warning "The server will restart after the forest is created."
+Write-Host "$DomainName etki alanı oluşturulacak." -ForegroundColor Cyan
+Write-Warning "Kurulum tamamlandığında sunucu yeniden başlayacak."
 
-$dsrmPassword = Read-Host "Enter a Directory Services Restore Mode (DSRM) password" -AsSecureString
+$dsrmPassword = Read-Host "DSRM için bir parola belirle" -AsSecureString
 
 Install-ADDSForest `
     -DomainName $DomainName `
