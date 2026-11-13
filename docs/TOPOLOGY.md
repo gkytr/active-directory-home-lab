@@ -1,27 +1,36 @@
-# Lab network topology
+# Ağ yapısı
+
+Lab ortamında iki sanal makine olacak. DC01 hem Active Directory hem de DNS hizmetini sağlayacak. CLIENT01 ise bu etki alanına katılan normal bir Windows bilgisayarı olacak.
 
 ```text
-                 Private virtual switch
+                 VMware Host-only Ağ
                          |
               +----------+----------+
               |                     |
          +----+-----+          +----+------+
          |   DC01   |          | CLIENT01  |
-         | Windows  |          | Windows   |
-         | Server   |          | Pro/Ent   |
+         | Windows  |          | Windows 11|
+         | Server   |          | Pro        |
          +----+-----+          +----+------+
               |                     |
-        AD DS + DNS  <------------> Domain joined
+        Active Directory  <------> Domaine bağlı
+        DNS: 192.168.10.10
         corp.example.test
-        192.168.10.10
 ```
 
-The IPv4 address is an example. Select a subnet that does not conflict with your home LAN, VPN, or other virtual networks.
+## IP planı
 
-## Network requirements
+| Makine | IP / DNS |
+|---|---|
+| DC01 | 192.168.10.10 (sabit IP) |
+| CLIENT01 | Aynı ağdan bir IP |
+| CLIENT01 DNS | 192.168.10.10 |
 
-- DC01 should use a static IPv4 address.
-- DC01 should use its own address for DNS after DNS is installed and configured.
-- CLIENT01 must use the domain controller as its DNS server before joining the domain.
-- Both VMs must be connected to the same private virtual network.
-- Keep the lab isolated from untrusted networks.
+Bu adresler örnek. Kullandığın VMware sanal ağının alt ağıyla çakışmadığından emin ol.
+
+## Dikkat edilecekler
+
+- İki sanal makine de aynı Host-only ağa bağlı olmalı.
+- DC01'e sabit IP verilmeli.
+- CLIENT01'in DNS adresi DC01 olmalı. Domaine katılırken genel DNS adresi kullanma.
+- Lab ağını ev ağından ve güvenmediğin ağlardan ayrı tut.
