@@ -1,103 +1,90 @@
-# Active Directory Home Lab
+# Active Directory Ev Laboratuvarı
 
-A practical Windows Server lab demonstrating Active Directory Domain Services (AD DS), DNS, organizational units (OUs), security groups, user provisioning, Group Policy, and domain-joined client verification.
+Bu repoda VMware üzerinde küçük bir Windows Server ağı kuruyorum. Amacım, IT destek ve sistem yönetimi tarafında sık karşılaşılan işleri yalnızca teoride bırakmadan kendi bilgisayarımda denemek.
 
-> **Lab environment only.** Use isolated virtual machines and fictional accounts. Review every script before running it. Never use these examples in a production domain without proper testing and change control.
+İlk aşamada bir etki alanı denetleyicisi (DC01) kuracağım. Ardından Active Directory, DNS, kullanıcılar, gruplar ve Group Policy ayarlarını yapılandırıp ikinci bir Windows bilgisayarı etki alanına dahil edeceğim.
 
-## Lab architecture
+> **Not:** Bu repo kurulum sırasında kullandığım dosyaları ve notları içeriyor. Henüz kurulumu tamamlamadığım bölümleri tamamlanmış gibi göstermiyorum; ekran görüntülerini ve test sonuçlarını lab çalıştıkça ekleyeceğim.
 
-| Component | Hostname | Example |
-|---|---|---|
-| Domain controller | DC01 | Windows Server 2022/2025 Evaluation |
-| Client | CLIENT01 | Windows 10/11 Pro or Enterprise |
-| AD domain | corp.example.test | Private lab namespace |
-| NetBIOS | CORP | CORP |
-| DC IPv4 | 192.168.10.10/24 | Example; adapt to your network |
-| Client DNS | 192.168.10.10 | Domain controller |
+## Kuracağım ortam
 
-Use an **Internal** or **Host-only** virtual network. Do not expose the domain controller directly to the public internet.
+| Makine / Ayar | Değer |
+|---|---|
+| Sanallaştırma | VMware Workstation |
+| Sunucu | DC01 – Windows Server 2025 |
+| İstemci | CLIENT01 – Windows 11 Pro |
+| Etki alanı | corp.example.test |
+| NetBIOS adı | CORP |
+| DC01 IP adresi | 192.168.10.10 |
+| İstemcinin DNS adresi | 192.168.10.10 |
+| Sanal ağ | Host-only |
 
-## Skills demonstrated
+IP adresleri örnek olarak seçildi. Kendi bilgisayarındaki diğer ağlarla çakışmaması için kurulumdan önce kontrol edeceğim.
 
-- Installing the Active Directory Domain Services role.
-- Creating a new AD forest and configuring DNS.
-- Designing a basic OU hierarchy.
-- Creating fictional test users and role-based security groups.
-- Creating and linking a starter Group Policy Object (GPO).
-- Joining a Windows client to the domain.
-- Running basic AD DS and DNS health checks.
+## Bu çalışmada neler var?
 
-## Repository structure
+- Windows Server üzerine AD DS rolünü kurmak ve yeni bir forest oluşturmak
+- DNS'in etki alanıyla birlikte nasıl çalıştığını görmek
+- Departmanlara göre OU yapısı hazırlamak
+- Örnek kullanıcılar ve güvenlik grupları oluşturmak
+- Bir Group Policy hazırlayıp istemci OU'suna bağlamak
+- Windows istemciyi domaine dahil etmek
+- DNS ve domain controller kontrollerini çalıştırmak
+
+## Klasörler
 
 ```text
 active-directory-home-lab/
-├── scripts/
-│   ├── 01-Install-ADDSForest.ps1
-│   ├── 02-Create-Directory-Objects.ps1
-│   ├── 03-Create-Baseline-GPO.ps1
-│   └── 04-Verify-Lab.ps1
-├── docs/
-│   ├── TOPOLOGY.md
-│   └── SCREENSHOT-CHECKLIST.md
+├── scripts/                 # Kurulum ve kontrol PowerShell dosyaları
+├── docs/                    # Ağ şeması ve kurulum notları
 ├── .gitignore
 ├── LICENSE
 └── README.md
 ```
 
-## Build guide
+## Kurulum sırası
 
-1. Create two VMs and connect them to the same private virtual switch.
-2. Install Windows Server on **DC01**, rename the server, and configure a static IPv4 address.
-3. Open PowerShell as Administrator and run `scripts/01-Install-ADDSForest.ps1`.
-4. After the server restarts, sign in as `CORP\\Administrator`.
-5. Run `scripts/02-Create-Directory-Objects.ps1` to create the sample OUs, users, and groups.
-6. Run `scripts/03-Create-Baseline-GPO.ps1`.
-7. Configure **CLIENT01** to use `192.168.10.10` as its DNS server, then join it to `corp.example.test`.
-8. Run `scripts/04-Verify-Lab.ps1` on DC01.
-9. Capture your own screenshots and add them under `docs/screenshots/`. Review them for private information first.
+1. VMware'de DC01 adında bir sanal makine oluştur.
+2. Windows Server 2025'i kur, bilgisayar adını DC01 yap ve sabit IP adresini ayarla.
+3. PowerShell'i yönetici olarak açıp `scripts/01-Install-ADDSForest.ps1` dosyasını çalıştır.
+4. Sunucu yeniden başladıktan sonra `scripts/02-Create-Directory-Objects.ps1` dosyasıyla OU, kullanıcı ve grupları oluştur.
+5. `scripts/03-Create-Baseline-GPO.ps1` dosyasını çalıştır.
+6. CLIENT01 sanal makinesini oluştur. DNS adresini DC01'in IP adresi yap ve bilgisayarı `corp.example.test` etki alanına kat.
+7. Son kontrolleri DC01 üzerinde `scripts/04-Verify-Lab.ps1` ile yap.
 
-## Scripts
+VMware ayarları ve Windows Server kurulum adımları için [kurulum notlarına](docs/VMWARE-KURULUM.md) bakabilirsin.
 
-| Script | Purpose |
+## PowerShell dosyaları
+
+| Dosya | Ne yapıyor? |
 |---|---|
-| `01-Install-ADDSForest.ps1` | Installs AD DS and promotes the server into a new forest |
-| `02-Create-Directory-Objects.ps1` | Creates OUs, demo users, security groups, and memberships |
-| `03-Create-Baseline-GPO.ps1` | Creates and links a starter workstation GPO |
-| `04-Verify-Lab.ps1` | Checks domain information, DCs, OUs, users, groups, DNS, and DCDIAG |
+| `01-Install-ADDSForest.ps1` | AD DS rolünü kurup yeni etki alanını oluşturuyor. |
+| `02-Create-Directory-Objects.ps1` | OU'ları, örnek kullanıcıları ve güvenlik gruplarını hazırlıyor. |
+| `03-Create-Baseline-GPO.ps1` | İstemciler için GPO oluşturup ilgili OU'ya bağlıyor. |
+| `04-Verify-Lab.ps1` | Domain, DNS, kullanıcı ve domain controller kontrollerini yapıyor. |
 
-Run scripts one at a time. The demo user script prompts for passwords securely; no passwords are stored in this repository.
+Scriptleri sırayla ve yönetici yetkisiyle çalıştır. Kullanıcı oluşturma sırasında parolaları ekrandan güvenli şekilde gireceksin; parolalar dosyalara yazılmıyor.
 
-## Portfolio evidence
+## Ekran görüntüleri
 
-Add genuine screenshots from your completed lab:
+Kurulum tamamlandıkça kendi ortamımdan ekran görüntüleri ekleyeceğim. Özellikle şu bölümleri göstermek istiyorum:
 
-- Server Manager showing AD DS installed.
-- Active Directory Users and Computers showing the OU structure.
-- Demo users and security group memberships.
-- Group Policy Management showing the linked GPO.
-- CLIENT01 successfully joined to the domain.
-- Successful DNS lookup and health-check output.
+- Server Manager'da AD DS rolünün kurulu olması
+- Active Directory Users and Computers içinde OU yapısı
+- Örnek kullanıcılar ve grup üyelikleri
+- Group Policy Management ekranı
+- CLIENT01'in domaine katılmış olması
+- DNS sorgusu ve `dcdiag` kontrol sonucu
 
-See [docs/SCREENSHOT-CHECKLIST.md](docs/SCREENSHOT-CHECKLIST.md).
+Ekran görüntüsü eklemeden önce parola, lisans anahtarı, kişisel kullanıcı adı ve benzeri bilgileri kapatacağım. Liste için [ekran görüntüsü kontrol dosyasına](docs/SCREENSHOT-CHECKLIST.md) bak.
 
-## Troubleshooting
+## Küçük notlar
 
-- Confirm both VMs are connected to the same virtual network.
-- Confirm DC01 has a static IP address.
-- Confirm CLIENT01 uses the domain controller as its DNS server.
-- Check time synchronization; Kerberos authentication is sensitive to clock differences.
-- Run `ipconfig /all`, `nslookup corp.example.test`, and `dcdiag`.
-- Avoid configuring public DNS servers as the client's preferred DNS while joining the AD domain.
+Bu çalışma bir ev laboratuvarı. Gerçek şirket ağına doğrudan uygulanacak hazır bir güvenlik standardı değil. Denemeleri yalnızca sanal makinelerde ve gerçek kullanıcı verisi kullanmadan yapıyorum.
 
-## Security considerations
+Bir sorun çıkarsa ilk bakacağım yerler ağ bağlantısı, DC01'in sabit IP adresi, istemcinin DNS ayarı ve saat eşitlemesi olacak. Gerekli olduğunda `ipconfig /all`, `nslookup corp.example.test` ve `dcdiag` komutlarıyla kontrol edeceğim.
 
-- This is a learning lab, not a production security baseline.
-- Use fictional test identities and unique lab passwords.
-- Never commit passwords, recovery keys, private keys, VM disks, or real user data.
-- Keep the domain controller isolated from untrusted networks.
-- Review and test scripts before execution.
+## Yararlanılan kaynak
 
-## References
-
-- [Microsoft Learn — Install Active Directory Domain Services](https://learn.microsoft.com/windows-server/identity/ad-ds/deploy/install-active-directory-domain-services--level-100-)
-- [Microsoft Learn — Install-ADDSForest](https://learn.microsoft.com/en-us/powershell/module/addsdeployment/install-addsforest?view=windowsserver2025-ps)
+- [Microsoft Learn – Active Directory Etki Alanı Hizmetleri'ni yükleme](https://learn.microsoft.com/tr-tr/windows-server/identity/ad-ds/deploy/install-active-directory-domain-services--level-100-)
+- [Microsoft Learn – Install-ADDSForest komutu](https://learn.microsoft.com/tr-tr/powershell/module/addsdeployment/install-addsforest?view=windowsserver2025-ps)
