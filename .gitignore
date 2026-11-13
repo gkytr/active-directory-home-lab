@@ -1,4 +1,4 @@
-# Virtual machines and exports
+# Sanal makine dosyaları
 *.vhd
 *.vhdx
 *.vdi
@@ -6,7 +6,7 @@
 *.ova
 *.ovf
 
-# Secrets and local configuration
+# Parola ve yerel ayar dosyaları
 .env
 *.pfx
 *.key
@@ -14,7 +14,7 @@
 secrets/
 credentials/
 
-# Local artifacts
+# Geçici dosyalar
 *.log
 *.tmp
 Thumbs.db
