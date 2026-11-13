@@ -1,0 +1,21 @@
+# Virtual machines and exports
+*.vhd
+*.vhdx
+*.vdi
+*.vmdk
+*.ova
+*.ovf
+
+# Secrets and local configuration
+.env
+*.pfx
+*.key
+*.pem
+secrets/
+credentials/
+
+# Local artifacts
+*.log
+*.tmp
+Thumbs.db
+.DS_Store
