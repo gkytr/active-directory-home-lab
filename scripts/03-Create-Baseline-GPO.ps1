@@ -1,39 +1,55 @@
 #requires -RunAsAdministrator
 <#
 .SYNOPSIS
-Creates a starter GPO and links it to the Workstations OU.
+İstemciler için bir GPO oluşturur ve İstemciler OU'suna bağlar.
 
 .NOTES
-This creates the GPO and its link; configure and document policy settings
-through Group Policy Management. This is not a complete security baseline.
+Bu örnekte güvensiz SMB misafir oturumları kapatılır.
+Bu ayar kapsamlı bir güvenlik standardı değildir; lab çalışması için
+başlangıç seviyesinde bir örnektir.
 #>
 [CmdletBinding()]
 param(
-    [string]$DomainDN = "DC=corp,DC=example,DC=test",
-    [string]$GpoName = "LAB - Workstation Baseline"
+    [string]$DomainDN,
+    [string]$GpoName = "LAB - Istemci Temel Ayarlari"
 )
 
 $ErrorActionPreference = "Stop"
+Import-Module ActiveDirectory
 Import-Module GroupPolicy
 
-$workstationsOU = "OU=Workstations,OU=Computers,OU=Company,$DomainDN"
+if (-not $DomainDN) {
+    $DomainDN = (Get-ADDomain).DistinguishedName
+}
 
+$workstationsOU = "OU=Istemciler,OU=Bilgisayarlar,OU=Sirket,$DomainDN"
+
+# Önce GPO var mı diye bak; varsa yeniden oluşturma.
 $gpo = Get-GPO -Name $GpoName -ErrorAction SilentlyContinue
 if (-not $gpo) {
-    New-GPO -Name $GpoName -Comment "Starter GPO created for the Active Directory portfolio lab." | Out-Null
-    Write-Host "Created GPO: $GpoName" -ForegroundColor Green
+    $gpo = New-GPO -Name $GpoName -Comment "Lab istemcileri için temel ayarlar."
+    Write-Host "GPO oluşturuldu: $GpoName" -ForegroundColor Green
 }
 else {
-    Write-Host "GPO already exists: $GpoName"
+    Write-Host "GPO zaten mevcut, mevcut ayarlar korunacak." -ForegroundColor DarkGray
 }
 
+# İstemcilerde güvensiz SMB misafir oturumlarına izin verme.
+Set-GPRegistryValue `
+    -Name $GpoName `
+    -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows\LanmanWorkstation" `
+    -ValueName "AllowInsecureGuestAuth" `
+    -Type DWord `
+    -Value 0 | Out-Null
+
+# GPO bağlantısı daha önce kurulmadıysa ekle.
 $existingLinks = (Get-GPInheritance -Target $workstationsOU).GpoLinks
 if (-not ($existingLinks | Where-Object { $_.DisplayName -eq $GpoName })) {
     New-GPLink -Name $GpoName -Target $workstationsOU -LinkEnabled Yes | Out-Null
-    Write-Host "Linked GPO to $workstationsOU" -ForegroundColor Green
+    Write-Host "GPO, İstemciler OU'suna bağlandı." -ForegroundColor Green
 }
 else {
-    Write-Host "GPO is already linked to the Workstations OU."
+    Write-Host "GPO bağlantısı zaten var." -ForegroundColor DarkGray
 }
 
-Write-Host "Next: configure selected policy settings in Group Policy Management and document them." -ForegroundColor Cyan
+Write-Host "İşlem bitti. İstemcide gpupdate /force komutuyla ilkeyi yenileyebilirsin." -ForegroundColor Cyan
