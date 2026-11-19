@@ -1,21 +1,37 @@
-# Sanal makine dosyaları
-*.vhd
-*.vhdx
-*.vdi
+# VMware sanal makine dosyalari
+*.vmx
+*.vmxf
 *.vmdk
+*.vmsd
+*.vmsn
+*.vmem
+*.nvram
+*.vmsw
+*.vmss
+*.vmsf
+*.vbox
+*.vdi
 *.ova
 *.ovf
+*.iso
 
-# Parola ve yerel ayar dosyaları
+# Hyper-V / sanal disk dosyalari
+*.vhd
+*.vhdx
+
+# Gizli bilgiler ve sertifikalar
 .env
+.env.*
+!.env.example
 *.pfx
 *.key
 *.pem
 secrets/
 credentials/
 
-# Geçici dosyalar
+# Gecici dosyalar ve isletim sistemi artiklari
 *.log
 *.tmp
+*.bak
 Thumbs.db
 .DS_Store
